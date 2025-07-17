@@ -2,6 +2,11 @@ import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Blog from './pages/Blog'
+import Layout from './pages/Admin/Layout'
+import Dashboard from './pages/Admin/Dashboard'
+import AddBlog from './pages/Admin/AddBlog'
+import ListBlog from './pages/Admin/ListBlog'
+import Comments from './pages/Admin/Comments'
 
 const App = () => {
   return (
@@ -9,6 +14,13 @@ const App = () => {
        <Routes>
            <Route path='/' element={<Home/>}/>
            <Route path='/blog/:id' element={<Blog/>}/>
+           <Route path='/admin' element={<Layout/>}>
+           <Route index element={<Dashboard/>}/>
+           <Route path="addblog" element={<AddBlog/>}/>
+           <Route path="listBlog" element={<ListBlog/>}/>
+           <Route path="comments" element={<Comments/>}/>
+               
+           </Route>
        </Routes>
     </div>
   )
