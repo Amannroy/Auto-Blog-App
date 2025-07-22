@@ -1,3 +1,7 @@
+import fs from 'fs';
+import imagekit from '../configs/imagekit.js';
+import Blog from '../models/Blog.js';
+
 export const addBlog = async (req, res) => {
      try{
           const {title, subTitle, description, category, isPublished} = JSON.parse(req.body.blog);
@@ -8,8 +12,85 @@ export const addBlog = async (req, res) => {
             return res.json({success: false, message: "Missing required fields"})
           }
 
-          
-     }catch(error){
+          const fileBuffer = fs.readFileSync(imageFile.path);
 
+          // We will upload the image on imagekit and then we are generating the image where we will get the transformed and optimized image 
+
+          // Uplaod image to ImageKit
+          const response = await imagekit.upload({
+               file: fileBuffer,
+               fileName: imageFile.originalname,
+               folder: "/blogs"
+          })
+
+          // Optimization through imagekit URL transformation
+          const optimizedImageUrl = imagekit.url({
+               path: response.filePath, 
+               transformation: [
+                    {quality: 'auto'},  // Auto Compression
+                    {format: 'webp'},  //  Convert to modern format
+                    {width: '1280'}    //   Width resizing
+               ]
+          });
+
+          const image = optimizedImageUrl;
+
+          // Save the data in the mongodb database
+          await Blog.create({title, subTitle, description, category, image, isPublished})
+
+          res.json({success: true, message: "Blog Added Successfully"})
+
+     }catch(error){
+          res.json({success: false, message: error.message})
+
+     }
+}
+
+// Function to get all the blog data
+export const getAllBlogs = async(req, res) => {
+     try{
+        const blogs = await Blog.find({isPublished: true})
+        res.json({success: true, blogs})
+     }catch(error){
+         res.json({success: false, message: error.message})
+     }
+}
+
+// Function to get the individual blog data
+export const getBlogById = async(req, res) => {
+     try{
+         const {blogId} = req.params;
+         const blog = await Blog.findById(blogId);
+
+         if(!blog){
+             return res.json({success: false, message: "Blog not found"});
+         }
+         res.json({success: true, blog})
+     }catch(error){
+         res.json({success: false, message: error.message})  
+     } 
+}
+
+// Function to delete blog by id
+export const deleteBlogById = async(req, res) => {
+     try{
+         const {id} = req.body;
+         await Blog.findOneAndDelete(id);
+         res.json({success: true, message: "Blog Deleted Successfully"})
+     }catch(error){
+         res.json({success: false, message: error.message})  
+     } 
+}
+
+// Function to Publish or unPublish the blog
+export const togglePublish = async(req, res) => {
+     try{
+        const {id} =  req.body;
+        const blog = await Blog.findById(id); 
+        blog.isPublished = !blog.isPublished;
+        await blog.save();
+        res.json({success: true, message: "Blog status updated"})
+     }catch(error){
+         res.json({success: false, message: error.message})
      }
 }
