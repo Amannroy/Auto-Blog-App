@@ -2,6 +2,7 @@ import fs from 'fs';
 import imagekit from '../configs/imagekit.js';
 import Blog from '../models/Blog.js';
 import Comment from '../models/Comment.js';
+import main from '../configs/gemini.js';
 
 export const addBlog = async (req, res) => {
      try{
@@ -121,5 +122,16 @@ export const getBlogComments = async(req, res) => {
           res.json({success: true, comments})    
      }catch(error){
           res.json({success: false, message: error.message})
+     }
+}
+
+// Function to Generate content from gemini ai
+export const generateContent = async(req, res) => {
+     try{
+         const {prompt} = req.body; // Whenever we will make the api call, we have to pass the response in the body
+         const content = await main(prompt + ' Generate a blog content for this topic in simple text format');   // Passed this prompt in the main function created using google gemini
+         res.json({success: true, content});
+     }catch(error){
+         res.json({success: false, message: error.message});
      }
 }
