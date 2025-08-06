@@ -10,7 +10,12 @@ const app = express();
 await connecetDB();
 
 // Middlewares
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: 'https://auto-blog-app-3lw4-piltz8091-aman-roys-projects.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
