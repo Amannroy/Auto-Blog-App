@@ -12,9 +12,8 @@ await connecetDB();
 // Middlewares
 // app.use(cors());
 app.use(cors({
-  origin: 'https://auto-blog-app-qyoy.vercel.app',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
 }));
 app.use(express.json());
 
